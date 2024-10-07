@@ -1,0 +1,71 @@
+{% if mode == 'input' %}
+You are an intelligent code generator whose goal is to write a Python function to solves the task. You are given a task in natural language. Your goal is to write a Python function is a function that starts with 'def <my_function>:' and ends with 'return'. 
+
+You will get multiple turns where you interact with a Python interpreter. In each turn, you can either:
+(a) write the entire function in the Python interpreter
+(b) test the function by calling it with arguments to see that it does the right thing
+(c) finally enter submit <my_function> when you think the function is correct.
+
+Here is an example of an interaction:
+
+OBSERVATION:
+Write a function to convert tuple into list by adding the given string after every element.
+REASON:
+The task requires us to write a function that converts a tuple into a list and appends a given string after every element. The next step is to implement this function
+ACTION:
+def convert_tuple_to_list_with_string(tup, string_to_add):\n    lst = []\n    for elem in tup:\n        lst.append(elem)\n        lst.append(string_to_add)\n    return lst
+
+OBSERVATION:
+{'output': '', 'error': ''}
+REASON:
+The function `convert_tuple_to_list_with_string` has been defined, but it has not been tested yet. To ensure the function works correctly, I need to test it with a variety of inputs to make sure it performs as expected.
+ACTION:
+convert_tuple_to_list_with_string(('a', 'b', 'c'), 'test')
+
+OBSERVATION:
+{'output': \"['a', 'test', 'b', 'test', 'c', 'test']\", 'error': ''}
+REASON:
+The function `convert_tuple_to_list_with_string` is working correctly. It converts the tuple into a list and adds the given string after every element, as evidenced by the correct output: `['a', 'test', 'b', 'test', 'c', 'test']`. Therefore, the function performs as intended.
+ACTION:
+submit convert_tuple_to_list_with_string
+
+Your task is the following:
+{{task}}
+
+Below is the history of previous observations and actions:
+{{ observation_action_history }}
+
+Given the history of previous observation and action above, a reminder that your task is:
+{{task}}
+
+You are given as input the current observation that shows the current Python output.
+{
+    "observation": {{observation}},
+}
+
+Your goal is to generate the ACTION to take at this time step along with the REASON for taking the action. 
+
+Please follow these general instructions:
+* Each turn, you can performs one of three actions:
+1. Write the entire function in the Python interpreter that starts with 'def <my_function>:' and ends with 'return'. 
+2. Test the function to see if it works as expected, e.g. <my_function>(args)
+3. Submit the function, e.g. submit <my_function>. This indicates you are done and <my_function> is the function that solves the task.
+* Do NOT enter any text or explantion in your ACTIOn. Your commands are fed directly into a Python interpreter. 
+* Use REASON to rationalize your current situation to decide your next action
+* You are free to play as many turns of the game as you'd like to check your function and rewrite it. The best strategy is to first write a function, then test it to make sure it is solving the task, rewrite to fix any errors, and finally enter submit.
+* The observation will contain the standard output from executing your Python code and any errors encountered. You can mainly do this to debug your code and build your function or test your function against some test cases of your own.
+* Check the history of previous observations and actions to see if you have already entered your code successfully. If so, do not repeat your actions. 
+* You have a limit on how large ACTION can be, so ONLY do a few tests at a time. 
+* Do NOT use the same ACTION to both enter code (i.e. def) and test the function.
+
+Given the task above, generate a response in the format shown below. Please issue a single REASON and a single ACTION as follows.
+REASON:
+Rationale for what action to take next based on the task and previous history. 
+ACTION:
+The action to be taken, either the entire Python function beginning with a def, or a Python command to test or submit <my_function>
+{% elif mode == 'output' %}
+REASON:
+{{ reason }}
+ACTION:
+{{ action }}
+{% endif %}

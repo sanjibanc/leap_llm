@@ -1,0 +1,18 @@
+env_type: python
+env_image_name: intercode-python
+env_data_path: env_assets/intercode/data/python/mbpp/ic_mbpp.json
+env_verbose: false
+env_preprocess: null
+verbose: 2
+debug: true
+logdir: data/eval/intercode_python
+exact_path: false
+eval_set: test
+start_env_idx: 1
+max_env_idxs: null
+max_actions: 15
+agents:
+  - type: hf_space
+    model_id: meta-llama/Meta-Llama-3.1-8B-Instruct
+    space_id: sc2582/leap_llm_space2
+    prompt_template_file: prompts/intercode_python/intercode_python_template.j2

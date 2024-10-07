@@ -1,0 +1,82 @@
+collect_logs:
+  env_type: sql
+  env_image_name: docker-env-sql
+  env_data_path: env_assets/intercode/data/sql/spider/ic_spider_dev.json
+  env_verbose: false
+  env_preprocess: null
+  verbose: 0
+  debug: false
+  logdir: data/intercode_sql/raw/raw_logs_w_reason
+  exact_path: true
+  eval_set: train
+  start_env_idx: null
+  max_env_idxs: null
+  max_actions: 30
+  agents:
+    - type: openai
+      model_id: gpt-4o
+      prompt_template_file: prompts/intercode_sql/intercode_sql_react_template.j2
+extract_privileged_state_intercode:
+  env_type: sql
+  env_image_name: docker-env-sql
+  env_data_path: env_assets/intercode/data/sql/spider/ic_spider_dev.json
+  env_verbose: false
+  privleged_state_filename: data/intercode_sql/privileged_state.json
+create_training_data:
+  base_sft:
+    prompt_template_file: prompts/intercode_sql/intercode_sql_template.j2
+    logs_dir: data/intercode_sql/raw/raw_logs_w_reason
+    data_dir: data/intercode_sql/sft/iter0
+    train_split: 0.85
+    score_threshold: 0.01
+    input_fields:
+      observation: observation
+      reason: reason
+      action: action
+      task: task
+    output_fields:
+      reason: reason
+      action: action
+  sft:
+    prompt_template_file: prompts/intercode_sql/intercode_sql_template.j2
+    logs_dir: data/intercode_sql/corrections/iter{prev_iter}/correction
+    data_dir: data/intercode_sql/sft/iter{iter}
+    train_split: 0.85
+    input_fields:
+      observation: original_observation
+      reason: original_reason
+      action: original_action
+      task: task
+    output_fields:
+      reason: corrected_reason
+      action: corrected_action
+rollout_student_trajectory:
+  env_type: sql
+  env_image_name: docker-env-sql
+  env_data_path: env_assets/intercode/data/sql/spider/ic_spider_dev.json
+  env_verbose: false
+  env_preprocess: null
+  verbose: 0
+  debug: false
+  logdir: data/intercode_sql/corrections/iter{iter}/rollout
+  exact_path: true
+  eval_set: train
+  start_env_idx: null
+  max_env_idxs: null
+  max_actions: 15
+  agents:
+    - type: hf_space
+      model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-intercode-sql-{iter}
+      space_id: sc2582/decisions_oaif_space
+      prompt_template_file: prompts/intercode_sql/intercode_sql_template.j2
+correct_student_trajectory:
+  log_dir: data/intercode_sql/corrections/iter{iter}/rollout
+  output_log_dir: data/intercode_sql/corrections/iter{iter}/correction 
+  privileged_state_file: data/intercode_sql/privileged_state.json
+  prompt_file: prompts/intercode_sql/correction_oracle_template.j2
+  id_field_name: env_idx
+  correct_score_threshold: 0
+upload_models_to_hf:
+  model_id_path: save/2408/intercode_sql/sft/iter0
+  new_model_name: Meta-Llama-3-8B-Instruct-sft-intercode-sql-iter0
+  organization_name: leap-llm

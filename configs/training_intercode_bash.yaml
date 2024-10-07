@@ -1,0 +1,84 @@
+collect_logs:
+  env_type: bash
+  env_image_name: intercode-nl2bash
+  env_data_path: env_assets/intercode/data/nl2bash/nl2bash_fs.json
+  env_verbose: false
+  env_preprocess: null
+  verbose: 0
+  debug: false
+  logdir: data/intercode_bash/raw/raw_logs_w_reason
+  exact_path: true
+  eval_set: train
+  start_env_idx: null
+  max_env_idxs: null
+  max_actions: 30
+  agents:
+    - type: openai
+      model_id: gpt-4o
+      prompt_template_file: prompts/intercode_bash/intercode_bash_react_template.j2
+extract_privileged_state_intercode:
+  env_type: bash
+  env_image_name: intercode-nl2bash
+  env_data_path: env_assets/intercode/data/nl2bash/nl2bash_fs.json
+  env_verbose: false
+  env_preprocess: null
+  privleged_state_filename: data/intercode_bash/privileged_state.json
+create_training_data:
+  base_sft:
+    prompt_template_file: prompts/intercode_bash/intercode_bash_template.j2
+    logs_dir: data/intercode_bash/raw/raw_logs_w_reason
+    data_dir: data/intercode_bash/sft/iter0
+    train_split: 0.85
+    score_threshold: 0.3
+    max_length_theshold: 6
+    input_fields:
+      observation: observation
+      reason: reason
+      action: action
+      task: task
+    output_fields:
+      reason: reason
+      action: action
+  sft:
+    prompt_template_file: prompts/intercode_bash/intercode_bash_template.j2
+    logs_dir: data/intercode_bash/corrections/iter{prev_iter}/correction
+    data_dir: data/intercode_bash/sft/iter{iter}
+    train_split: 0.85
+    input_fields:
+      observation: original_observation
+      reason: original_reason
+      action: original_action
+      task: task
+    output_fields:
+      reason: corrected_reason
+      action: corrected_action
+rollout_student_trajectory:
+  env_type: bash
+  env_image_name: intercode-nl2bash
+  env_data_path: env_assets/intercode/data/nl2bash/nl2bash_fs.json
+  env_verbose: false
+  env_preprocess: null
+  verbose: 0
+  debug: false
+  logdir: data/intercode_bash/corrections/iter{iter}/rollout
+  exact_path: true
+  eval_set: train
+  start_env_idx: null
+  max_env_idxs: null
+  max_actions: 10
+  agents:
+    - type: sglang_server
+      model_id: leap-llm/Meta-Llama-3.1-70B-Instruct-sft-intercode-bash-iter{iter}
+      server_url: http://localhost:30000/
+      prompt_template_file: prompts/intercode_bash/intercode_bash_template.j2
+correct_student_trajectory:
+  log_dir: data/intercode_bash/corrections/iter{iter}/rollout
+  output_log_dir: data/intercode_bash/corrections/iter{iter}/correction 
+  privileged_state_file: data/intercode_bash/privileged_state.json
+  prompt_file: prompts/intercode_bash/correction_oracle_template.j2
+  id_field_name: env_idx
+  correct_score_threshold: 0.7
+upload_models_to_hf:
+  model_id_path:  save/240927/8B/intercode_bash/sft/iter1/checkpoint-445/
+  new_model_name: Meta-Llama-3.1-8B-Instruct-sft-intercode-bash-iter1
+  organization_name: leap-llm

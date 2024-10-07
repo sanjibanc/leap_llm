@@ -1,0 +1,4 @@
+upload_models_to_hf:
+  model_id_path: save/webshop_sft_lr3e-5_old_data/iter0/
+  new_model_name: Meta-Llama-3.1-70B-Instruct-sft-webshop-lr3e-5-old-data-iter0
+  organization_name: leap-llm

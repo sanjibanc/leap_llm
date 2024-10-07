@@ -1,0 +1,11 @@
+verbose: 0
+debug: false
+logdir: data/eval/alfworld/ablation_self_correct
+exact_path: false
+start_env_idx: 0
+max_env_idxs: null
+eval_set: eval_out_of_distribution
+agents:
+  - type: hf
+    model_id: save/240912/alfworld_sft_self_correct/iter2/checkpoint-356
+    prompt_template_file: prompts/alfworld/alfworld_template.j2

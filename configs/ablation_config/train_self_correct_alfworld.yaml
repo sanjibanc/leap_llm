@@ -1,0 +1,39 @@
+correct_student_trajectory:
+  log_dir: data/ablation_self_correct/alfworld/corrections/iter{iter}/rollout 
+  output_log_dir: data/ablation_self_correct/alfworld/corrections/iter{iter}/correction 
+  privileged_state_file: data/alfworld/privileged_state.json
+  prompt_file: prompts/alfworld_self_correct_ablation/alfworld_with_privileged_info_template.j2
+  id_field_name: gamefile
+  correct_score_threshold: 0
+  model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter{iter}
+create_training_data:
+  sft:
+    prompt_template_file: prompts/alfworld/alfworld_template.j2
+    logs_dir: data/ablation_self_correct/alfworld/corrections/iter{prev_iter}/correction
+    data_dir: data/ablation_self_correct/alfworld/sft/iter{iter}
+    train_split: 0.85
+    input_fields:
+      observation: original_observation
+      candidate_actions: candidate_actions
+      reason: original_reason
+      action: original_action
+      task: task
+    output_fields:
+      reason: corrected_reason
+      action: corrected_action
+rollout_student_trajectory:
+  verbose: true
+  debug: false
+  logdir: data/ablation_self_correct/alfworld/corrections/iter{iter}/rollout
+  exact_path: true
+  start_env_idx: 2345
+  max_env_idxs: null
+  eval_set: train
+  agents:
+    - type: hf
+      model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-self-correct-alfworld-iter{iter}
+      prompt_template_file: prompts/alfworld/alfworld_template.j2
+upload_models_to_hf:
+  model_id_path: save/240912/alfworld_sft_self_correct/iter1
+  new_model_name: Meta-Llama-3-8B-Instruct-sft-self-correct-alfworld-iter1
+  organization_name: leap-llm

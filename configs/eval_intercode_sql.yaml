@@ -1,0 +1,21 @@
+env_type: sql
+env_image_name: docker-env-sql
+env_data_path: env_assets/intercode/data/sql/spider/ic_spider_dev.json
+env_verbose: false
+env_preprocess: null
+verbose: 1
+debug: false
+logdir: data/eval/intercode_sql
+exact_path: false
+eval_set: test
+start_env_idx: null
+max_env_idxs: null
+max_actions: 15
+agents:
+  - type: openai
+    model_id: gpt-4o
+    prompt_template_file: prompts/intercode_sql/intercode_sql_template.j2
+  - type: hf_space
+    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-intercode-sql-iter1
+    space_id: sc2582/decisions_oaif_space
+    prompt_template_file: prompts/intercode_sql/intercode_sql_template.j2

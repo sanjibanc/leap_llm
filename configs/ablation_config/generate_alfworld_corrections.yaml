@@ -1,0 +1,52 @@
+correct_student_trajectory:
+  log_dir: data/ablations/alfworld/corrections/iter{iter}/rollout 
+  output_log_dir: data/ablations/alfworld/corrections/iter{iter}/correction_100 
+  privileged_state_file: data/alfworld/privileged_state.json
+  prompt_file: prompts/alfworld_realizability_ablation/generation_oracle_100_privileged_template.j2
+  id_field_name: gamefile
+  correct_score_threshold: 0
+create_training_data:
+  base_sft:
+    prompt_template_file: prompts/alfworld/alfworld_template.j2
+    logs_dir: data/alfworld/raw/raw_logs_w_reason
+    data_dir: data/alfworld/sft/iter0
+    train_split: 0.85
+    input_fields:
+      observation: observation
+      candidate_actions: candidate_actions
+      reason: reason
+      action: action
+      task: task
+    output_fields:
+      reason: reason
+      action: action
+  sft:
+    prompt_template_file: prompts/alfworld/alfworld_template.j2
+    logs_dir: data/ablations/alfworld/corrections/iter{prev_iter}/correction_75
+    data_dir: data/ablations/alfworld/sft_75/iter{iter}
+    train_split: 0.85
+    input_fields:
+      observation: original_observation
+      candidate_actions: candidate_actions
+      reason: original_reason
+      action: original_action
+      task: task
+    output_fields:
+      reason: corrected_reason
+      action: corrected_action
+  pref:
+    prompt_template_file: prompts/alfworld/alfworld_template.j2
+    logs_dir: data/ablations/alfworld/corrections/iter{prev_iter}/correction
+    data_dir: data/ablations/alfworld/pref/iter{iter}
+    train_split: 0.85
+    input_fields:
+      observation: original_observation
+      candidate_actions: candidate_actions
+      reason: original_reason
+      action: original_action
+      task: task
+    output_fields:
+      chosen_reason: corrected_reason
+      chosen_action: corrected_action
+      rejected_reason: original_reason
+      rejected_action: original_action

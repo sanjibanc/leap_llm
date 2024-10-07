@@ -1,0 +1,79 @@
+collect_logs_alfworld:
+  log_dir: data/alfworld/raw/raw_logs
+annotate_reason:
+  prompt_template_file: prompts/alfworld/reasoning_template.j2
+  log_dir: data/alfworld/raw/raw_logs/
+  output_log_dir: data/alfworld/raw/raw_logs_w_reason/
+extract_privileged_state_from_logs:
+  prompt_template_file: prompts/alfworld/extract_privileged_state_template.j2
+  logs_dir: data/alfworld/raw/raw_logs
+  privleged_state_filename: data/alfworld/privileged_state.json
+  id_field_name: gamefile
+create_training_data:
+  base_sft:
+    prompt_template_file: prompts/alfworld/alfworld_template.j2
+    logs_dir: data/alfworld/raw/raw_logs_w_reason
+    data_dir: data/alfworld/sft/iter0
+    train_split: 0.85
+    input_fields:
+      observation: observation
+      candidate_actions: candidate_actions
+      reason: reason
+      action: action
+      task: task
+    output_fields:
+      reason: reason
+      action: action
+  sft:
+    prompt_template_file: prompts/alfworld/alfworld_template.j2
+    logs_dir: data/alfworld/corrections/iter{prev_iter}/correction
+    data_dir: data/alfworld/sft/iter{iter}
+    train_split: 0.85
+    input_fields:
+      observation: original_observation
+      candidate_actions: candidate_actions
+      reason: original_reason
+      action: original_action
+      task: task
+    output_fields:
+      reason: corrected_reason
+      action: corrected_action
+  pref:
+    prompt_template_file: prompts/alfworld/alfworld_template.j2
+    logs_dir: data/alfworld/corrections/iter{prev_iter}/correction
+    data_dir: data/alfworld/pref/iter{iter}
+    train_split: 0.85
+    input_fields:
+      observation: original_observation
+      candidate_actions: candidate_actions
+      reason: original_reason
+      action: original_action
+      task: task
+    output_fields:
+      chosen_reason: corrected_reason
+      chosen_action: corrected_action
+      rejected_reason: original_reason
+      rejected_action: original_action
+rollout_student_trajectory:
+  verbose: true
+  debug: false
+  logdir: data/alfworld/corrections/iter{iter}/rollout
+  exact_path: true
+  start_env_idx: 0
+  max_env_idxs: null
+  eval_set: train
+  agents:
+    - type: hf
+      model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter{iter}
+      prompt_template_file: prompts/alfworld/alfworld_template.j2
+correct_student_trajectory:
+  log_dir: data/alfworld/corrections/iter{iter}/rollout 
+  output_log_dir: data/alfworld/corrections/iter{iter}/correction 
+  privileged_state_file: data/alfworld/privileged_state.json
+  prompt_file: prompts/alfworld/correction_oracle_template.j2
+  id_field_name: gamefile
+  correct_score_threshold: 0
+upload_models_to_hf:
+  model_id_path: save/240912/alfworld_sft/iter2/checkpoint-907
+  new_model_name: Meta-Llama-3-8B-Instruct-sft-alfworld-iter2
+  organization_name: leap-llm

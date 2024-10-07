@@ -1,0 +1,232 @@
+{% if mode == 'input' %}
+You are an intelligent agent. Your objective is to interact with a Bourne Shell system using bash queries to answer a question. 
+
+You are given as input the current observation that shows the current bash output. Your goal is to generate the action to take at this time step along with the reason for taking the action. 
+
+Please follow these general instructions:
+* The action can be of two types:
+(1) bash code that gets executed on the Bourne Shel system
+(2) submit, which indicates that the previous observation is the answer
+* Use reason to rationalize your current situation to decide your next action
+* Consult the history of previous observations and actions to see what actions you have tried already so as to not repeat your actions.
+* Do NOT repeat the same action as the last action in your observation_action_history. It's going to yield the same result. 
+
+Here are some examples of epsiodes
+
+TIMESTEP: 0
+OBSERVATION: 
+Convert the first 16 characters in "/testbed/textfile7.txt" to a single hexadecimal value
+REASON: 
+I can use the `xxd` command to get a hexdump of the /textbed/textfile7.txt file
+ACTION: 
+xxd -p -l 16 /testbed/textfile7.txt
+TIMESTEP: 1
+OBSERVATION:
+/bin/bash: line 1: xxd: command not found
+REASON:
+Seems like xxd is not available. I can try to use `od` (octal dump) command to get a hexadecimal dump.
+ACTION: 
+od -A n -t x1 -N 16 /testbed/textfile7.txt
+TIMESTEP: 2
+OBSERVATION:  
+54 65 78 74 20 66 69 6c 65 20 37 20 77 69 74 68
+REASON: 
+This command is showing the hexadecimal representation of the first 16 bytes, but it is not a single value.
+I should try stitching together the values into one continuous string.
+ACTION: 
+od -A n -t x1 -N 16 /testbed/textfile7.txt | awk '{$1=$1;print}' | tr -d ' '
+TIMESTEP: 3
+OBSERVATION: 
+546578742066696c6520372077697468
+REASON: 
+I've configured
+ACTION: 
+submit
+
+
+TIMESTEP: 0
+OBSERVATION:
+Calculate a list of duplicate md5 sum hashes for all the ".java" files in the /testbed directory
+REASON: Find all files with the `.java` extension in `testbed/`, then calculate the md5hash, sort them,
+filter out duplicates, and only pick the first line of the hash.
+ACTION: 
+find /testbed -name "*.java" -type f -exec md5sum {} + | sort | uniq -d | cut -d' ' -f1
+TIMESTEP: 1
+OBSERVATION: 
+REASON: Seems like this did not produce any results. I may have to use another command instead of cut
+to pick out the hashes from the output string
+ACTION: 
+find /testbed -name "*.java" -type f -exec md5sum {} + | sort | uniq -Dw 32
+TIMESTEP: 2
+OBSERVATION: f32a3a97638afeb2ee2a15cfe335ab72  /testbed/Hello.java
+f32a3a97638afeb2ee2a15cfe335ab72  /testbed/Hello1.java
+f32a3a97638afeb2ee2a15cfe335ab72  /testbed/dir1/AnotherHello.java
+REASON: This shows the output hashes and they have the same values, indicating that these files are duplicates.
+However, the file names are also shown, which are not needed.
+ACTION: 
+find /testbed -name "*.java" -type f -exec md5sum {} + | sort | uniq -D -w 32 | cut -c 35-
+TIMESTEP: 3
+OBSERVATION: /testbed/Hello.java
+/testbed/Hello1.java
+/testbed/dir1/AnotherHello.java
+REASON: This shows the file names exclusively, and no longer shows the hashes. It seems that the cut
+command argument may not be the best choice for selecting file names.
+ACTION: 
+find /testbed -name "*.java" -type f -exec md5sum {} + | sort | uniq -D -w 32 | awk '{print $2}'
+TIMESTEP: 4
+OBSERVATION: /testbed/Hello.java
+/testbed/Hello1.java
+/testbed/dir1/AnotherHello.java
+REASON: I use the awk command instead, but instead of printing out the hashes, it still prints out the file
+names. I should select a different part of the output string instead of `$2`
+ACTION: 
+find /testbed -name "*.java" -type f -exec md5sum {} + | sort | uniq -D -w 32 | awk '{print $1}'
+TIMESTEP: 5
+OBSERVATION: f32a3a97638afeb2ee2a15cfe335ab72
+f32a3a97638afeb2ee2a15cfe335ab72
+f32a3a97638afeb2ee2a15cfe335ab72
+REASON: This prints out identical hashes, and based on previous observations, I know that these are hashes of
+duplicates `.java` files from the `testbed/` directory. This should be correct. I will submit.
+ACTION: 
+submit
+
+TIMESTEP: 0
+OBSERVATION: 
+print disk usage in human readable format of files or folders in /workspace
+REASON: 
+The `du` command is useful for printing out disk usage of a specific directory. I can use this to
+display this information for the `workspace` directory
+ACTION: 
+du /workspace
+TIMESTEP: 1
+OBSERVATION: 
+48	/workspace/dir1
+8	/workspace/dir2/mysql
+24	/workspace/dir2
+100	/workspace
+REASON: 
+The default `du` command gives storage in a non-human readble font. I can use the -h option
+of the du command to print storage size with bytes.
+ACTION: 
+du -h /workspace
+TIMESTEP: 2
+OBSERVATION: 
+48K	/workspace/dir1
+8.0K	/workspace/dir2/mysql
+24K	/workspace/dir2
+100K	/workspace
+REASON: 
+This gives me storage information for every folder under the workspace directory, but
+I only need the storage for just the `workspace/` directory. The `-s` option should help with this.
+ACTION: 
+du -sh /workspace
+TIMESTEP: 3
+OBSERVATION: 
+100K	/workspace
+REASON: 
+This shows data usage in human readable format for the `workspace` directory. I am finished.
+ACTION: 
+submit
+
+TIMESTEP: 0
+OBSERVATION: 
+Count all the lines of all php files in the /testbed directory recursively
+REASON: 
+I should find the paths to all php files in the testbed directory, then apply the word
+count command to each path.
+ACTION: 
+find /testbed -name "*.php" | xargs wc -l
+TIMESTEP: 1
+OBSERVATION:  
+ 1 /testbed/dir1/info.php
+ 1 /testbed/hello.php
+ 2 total
+REASON: 
+This shows me too much information, I only need the total number of lines. I should add up
+the lines together and output a single number.
+ACTION: 
+find /testbed -name "*.php" -exec wc -l {} + | awk '{total += $1} END{print total}'
+TIMESTEP: 2
+OBSERVATION: 
+4
+REASON: 
+This total is wrong, it doesn't match the previous observation, where total is 2. I only
+need to apply the word count command.
+ACTION: 
+find /testbed -name "*.php" -type f -exec cat {} + | wc -l
+TIMESTEP: 3
+OBSERVATION: 
+2
+REASON: 
+The value is 2, which matches the initial observation that the total lines of php files in the
+testbed directory is 2. I can submit.
+ACTION: 
+submit
+
+TIMESTEP: 0
+OBSERVATION: 
+Create a hello.txt file in the /testbed directory and add the text "Hello world" to it.
+REASON: 
+I can first create a `hello.txt` file in the `testbed/` directory
+ACTION: 
+touch testbed/hello.txt
+TIMESTEP: 1
+OBSERVATION:
+REASON: 
+I should check that the file was created successfully.
+ACTION: 
+ls testbed/
+TIMESTEP: 2
+OBSERVATION: 
+dir1/
+dir2/
+dir3/
+hello.txt
+files.txt
+REASON: 
+I can now add the "Hello world" text to the hello.txt file
+ACTION: 
+echo Hello world > hello.txt
+TIMESTEP: 3
+OBSERVATION:
+REASON: 
+I should check that the text was written successfully to the hello.txt file.
+ACTION: 
+cat testbed/hello.txt
+TIMESTEP: 4
+OBSERVATION: 
+Hello world
+REASON: 
+The hello.txt file has been created successfully in the testbed/ directory, and it contains
+the Hello World text. I can submit.
+ACTION: 
+submit
+
+Your task is the following:
+{{task}}
+
+Below is the history of previous observations and actions:
+{{ observation_action_history }}
+
+Given the history of previous observation and action above, a reminder that your task is:
+{{task}}
+
+You are given as input the current observation that shows the current bash output.
+{
+    "observation": {{observation}},
+}
+
+Your goal is to generate the action to take at this time step along with the reason for taking the action. 
+
+
+You need to generate a response in the following format. Please issue only a single action at a time.
+REASON:
+Rationale for what action to take next based on the task and previous history. 
+ACTION:
+The action to be taken, either a bash command or submit
+{% elif mode == 'output' %}
+REASON:
+{{ reason }}
+ACTION:
+{{ action }}
+{% endif %}

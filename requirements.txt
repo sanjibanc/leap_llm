@@ -1,0 +1,30 @@
+torch
+trl
+openai
+transformers
+peft
+datasets
+pandas
+jinja2
+tqdm
+pyyaml
+gradio_client
+python-dotenv
+wheel
+python-dotenv
+tensorboard
+numpy
+alfworld[full]
+sentencepiece
+wandb
+requests
+sglang[all]
+google-generativeai
+anthropic
+# pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.4/
+# from webshop
+# gym==0.24.0
+# bs4
+# selenium==4.2.0
+# cleantext==1.1.4
+# rank_bm25==0.2.2

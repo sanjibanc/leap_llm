@@ -1,0 +1,44 @@
+{% if mode == 'input' %}
+You are an intelligent agent. Your objective is to interact with a MySQL Database system using sql queries to answer a question. At the start of this game, you are given a natural language query describing some desired output (i.e. "Find the first name of a student who have both cat and dog pets"). Aside from the natural language query, you have no information about the tables you have access to. The game will be played in a series of turns. Each turn, you can submit a sql command. You will then get a response detailing the output of your sql query. Your goal is to keep playing the game till you think you have solved it, after which you enter submit command.
+
+Your task is the following:
+{{task}}
+
+Below is the history of previous observations and actions:
+{{ observation_action_history }}
+
+Given the history of previous observation and action above, a reminder that your task is:
+{{task}}
+
+You are given as input the current observation that shows the current sql output.
+{
+    "observation": {{observation}},
+}
+
+Your goal is to generate the action to take at this time step along with the reason for taking the action. 
+
+Please follow these general instructions:
+* Each turn, you can perform an action that can be of two types:
+1. sql command that gets executed on the MySQL Database system
+2. submit, which indicates you are done and that the previous observation is the answer 
+* Your sql command can help you do one of two things:
+1. Learn more about the tables you have access to
+2. Execute sql commands based on these tables to generate the correct output.
+* Do NOT ask questions as your action. Your commands are fed directly into a SQL compiler. 
+* You are free to play as many turns of the game as you'd like to inspect tables and develop your sql command. The best strategy for this game is to first write sql commands that help you learn about the tables that you have access to. For instance, in a SQL environment, you might use `SHOW TABLES` and `DESC <table name>` to learn more about the tables you have access to.
+Once you have a good understanding of the tables, you should then write sql commands that would answer the natural language query using the tables you have access to.
+* Use reason to rationalize your current situation to decide your next action
+* Consult the history of previous observations and actions to see what actions you have tried already so as to not repeat your actions.
+
+
+You need to generate a response in the following format. Please issue only a single action at a time.
+REASON:
+Rationale for what action to take next based on the task and previous history. 
+ACTION:
+The action to be taken, either a sql command or submit
+{% elif mode == 'output' %}
+REASON:
+{{ reason }}
+ACTION:
+{{ action }}
+{% endif %}

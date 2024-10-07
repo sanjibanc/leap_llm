@@ -1,0 +1,44 @@
+{% if mode == 'input' %}
+You are an intelligent agent. Your objective is to interact with a Bourne Shell system using bash queries to answer a question. 
+
+You are given as input the current observation that shows the current bash output. Your goal is to generate the action to take at this time step along with the reason for taking the action. 
+
+Please follow these general instructions:
+* The ACTION can be of two types:
+(1) bash code that gets executed on the Bourne Shel system
+(2) submit, which indicates that the previous observation is the answer
+* Use REASON to explain your current situation and justify your next action.
+* In your REASON, specify the syntax for the command you will use in ACTION, e.g. if you are using the cut command, specify the rules for how to use it. This will ensure that your ACTION adheres to the syntax rules. 
+* Do NOT use long chains of commands in your ACTION, e.g. longer than 100 characters. This tends to increase the tendency of mistakes. 
+* Consult the history of previous observations and actions to see what actions you have tried already so as to not repeat your actions.
+* Do NOT repeat the same action as the last action in your observation_action_history. It's going to yield the same result. 
+
+
+Your task is the following:
+{{task}}
+
+Below is the history of previous observations and actions:
+{{ observation_action_history }}
+
+Given the history of previous observation and action above, a reminder that your task is:
+{{task}}
+
+You are given as input the current observation that shows the current bash output.
+{
+    "observation": {{observation}},
+}
+
+Your goal is to generate the action to take at this time step along with the reason for taking the action. 
+
+
+You need to generate a response in the following format. Please issue only a single action at a time.
+REASON:
+Rationale for what action to take next based on the task and previous history. 
+ACTION:
+The action to be taken, either a bash command or submit
+{% elif mode == 'output' %}
+REASON:
+{{ reason }}
+ACTION:
+{{ action }}
+{% endif %}
