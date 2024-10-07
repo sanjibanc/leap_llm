@@ -1,4 +1,4 @@
-# ![Icon](assets/icon.png) Better than Your Teacher: LLM Agents that Learn from Privileged AI Feedback
+# <img src="assets/icon.png" alt="Icon" width="50"/> Better than Your Teacher: LLM Agents that Learn from Privileged AI Feedback
 
 <!-- Paper link: []() -->
 
