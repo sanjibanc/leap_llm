@@ -1,4 +1,4 @@
-# Better than Your Teacher: LLM Agents that learn from Privileged AI Feedback
+# ![Icon](assets/icon.png) Better than Your Teacher: LLM Agents that Learn from Privileged AI Feedback
 
 <!-- Paper link: []() -->
 
