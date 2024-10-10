@@ -1,6 +1,6 @@
 # <img src="assets/icon.png" alt="Icon" width="50"/> Better than Your Teacher: LLM Agents that Learn from Privileged AI Feedback
 
-<!-- Paper link: []() -->
+Paper link: [https://arxiv.org/abs/2410.05434](https://arxiv.org/abs/2410.05434)
 
 ## Installation
 
