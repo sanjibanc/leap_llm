@@ -56,7 +56,8 @@ class SGLangServerAgent(Agent):
                               task: str, 
                               observation: Any, 
                               candidate_actions: List[str], 
-                              reward: Optional[str] = "") -> Tuple[str, str]:
+                              reward: Optional[str] = "",
+                              privileged_state: Any = None) -> Tuple[str, str]:
         """
         Predict reason and action given task, observation and candidate_actions. 
 

@@ -31,7 +31,8 @@ class Agent:
     def predict_reason_action(self, task: str, 
                               observation: Any, 
                               candidate_actions: List[str], 
-                              reward: Any) -> Tuple[str, str]:
+                              reward: Any,
+                              privileged_state: Any) -> Tuple[str, str]:
         """
         Predicts the reason and action for the agent given inputs.
 

@@ -136,10 +136,10 @@ def main():
                     'candidate_actions': env.get_valid_actions(),
                     'reason': reason,
                     'action': action,
-                    'score': reward
                 }
 
                 obs, reward, done, info = env.step(action)
+                data["score"] = reward
                 trajectory.append(data)
 
                 if done:

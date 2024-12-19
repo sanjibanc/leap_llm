@@ -3,51 +3,58 @@ debug: false
 logdir: data/eval/webshop
 exact_path: false
 eval_set: test
-start_env_idx: null
+start_env_idx: 400
 max_env_idxs: null
-max_actions: 20
+max_actions: 30
 agents:
-  - type: openai
-    model_id: gpt-4o
-    prompt_template_file: prompts/webshop/webshop_template.j2
+  # - type: openai
+  #   model_id: gpt-4o
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
 
-  - type: openai
-    model_id: gpt-4o-mini
-    prompt_template_file: prompts/webshop/webshop_template.j2
+  # - type: openai
+  #   model_id: gpt-4o-mini
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
 
-  - type: chat
-    model_type: gemini
-    model_id: gemini-1.5-flash
-    prompt_template_file: prompts/webshop/webshop_template.j2
+  # - type: chat
+  #   model_type: gemini
+  #   model_id: gemini-1.5-flash
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
 
-  - type: chat
-    model_type: anthropic
-    model_id: claude-3-haiku-20240307
-    prompt_template_file: prompts/webshop/webshop_template.j2
+  # - type: chat
+  #   model_type: anthropic
+  #   model_id: claude-3-haiku-20240307
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
 
-  - type: chat
-    model_type: anthropic
-    model_id: claude-3-5-sonnet-20240620
-    prompt_template_file: prompts/webshop/webshop_template.j2
+  # - type: chat
+  #   model_type: anthropic
+  #   model_id: claude-3-5-sonnet-20240620
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
+
+  # - type: hf
+  #   model_id: meta-llama/Meta-Llama-3-8B-Instruct
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-webshop-iter0
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-webshop-iter1
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-webshop-iter2
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-webshop-iter3
+  #   prompt_template_file: prompts/webshop/webshop_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-webshop-intercode-iter0
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
 
   - type: hf
-    model_id: meta-llama/Meta-Llama-3-8B-Instruct
-    prompt_template_file: prompts/webshop/webshop_template.j2
-
-  - type: hf
-    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-webshop-iter0
-    prompt_template_file: prompts/webshop/webshop_template.j2
-
-  - type: hf
-    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-webshop-iter1
-    prompt_template_file: prompts/webshop/webshop_template.j2
-
-  - type: hf
-    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-webshop-iter2
-    prompt_template_file: prompts/webshop/webshop_template.j2
-
-  - type: hf
-    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-webshop-iter3
-    prompt_template_file: prompts/webshop/webshop_template.j2
-
+    model_id: save/241121/alfworld_webshop_intercode_sft/iter1/checkpoint-1987
+    prompt_template_file: prompts/alfworld/alfworld_template.j2
 

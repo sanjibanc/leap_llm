@@ -8,9 +8,14 @@ import torch
 from jinja2 import Template
 from tqdm import tqdm
 from typing import List, Tuple, Dict
-from leap_llm.utils.parser import parse_reason_and_action_alfworld
+from leap_llm.utils.parser import parse_reason_and_action_alfworld, parse_reason_and_action_webshop, parse_reason_and_action_intercode
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
+parse_function_map = {
+    "parse_reason_and_action_alfworld": parse_reason_and_action_alfworld, 
+    "parse_reason_and_action_webshop": parse_reason_and_action_webshop,
+    "parse_reason_and_action_intercode": parse_reason_and_action_intercode
+}
 
 def correct_student_trajectory(
     student_trajectory: List[dict], 
@@ -18,7 +23,9 @@ def correct_student_trajectory(
     correction_oracle_template: Template, 
     model: AutoModelForCausalLM, 
     tokenizer: AutoTokenizer, 
-    task: str
+    task: str,
+    parse_function: str,
+    max_time_steps: int,
 ) -> List[dict]:
     """
     Corrects a student's trajectory based on privileged state using a pretrained language model.
@@ -29,13 +36,17 @@ def correct_student_trajectory(
         correction_oracle_template (Template): A Jinja2 template for creating the input prompt for the model.
         model (AutoModelForCausalLM): A pretrained language model used for generating corrections.
         tokenizer (AutoTokenizer): Tokenizer associated with the pretrained model.
-        task (str): The task identifier used in the input prompt.
+        task (str): The task identifier used in the input prompt. (Optional)
+        parse_function (str): The name of the function to parse the model output to reason and action
+        max_time_steps (int): The max number of timesteps to correct up to
 
     Returns:
         List[dict]: The corrected trajectory with additional fields such as corrected reasons, actions, and flags.
     """
     corrected_trajectory = []
     for tidx, traj_step in enumerate(tqdm(student_trajectory)):
+        if max_time_steps is not None and tidx >= max_time_steps:
+            break
         observation_action_history = [
             {
                 "observation": tr["observation"],
@@ -77,7 +88,7 @@ def correct_student_trajectory(
         
         response = tokenizer.decode(output[tokenized_inputs["input_ids"].shape[-1] :],skip_special_tokens=True)
         
-        corrected_reason, corrected_action = parse_reason_and_action_alfworld(response)
+        corrected_reason, corrected_action = parse_function_map[parse_function](response)
         
         corrected_traj_step = copy.deepcopy(traj_step)
 
@@ -88,7 +99,9 @@ def correct_student_trajectory(
         corrected_traj_step['corrected_reason'] = corrected_reason
         corrected_traj_step['corrected_action'] = corrected_action
 
-        if (corrected_traj_step['corrected_action'] == corrected_traj_step['original_action']) or (corrected_traj_step['corrected_action'] not in corrected_traj_step['candidate_actions']):
+        if (corrected_traj_step['corrected_action'] == corrected_traj_step['original_action']):
+            corrected_traj_step['is_corrected'] = False
+        elif (corrected_traj_step['corrected_action'] not in corrected_traj_step['candidate_actions']) and ('search' not in corrected_traj_step['corrected_action']):
             corrected_traj_step['is_corrected'] = False
         else:
             corrected_traj_step['is_corrected'] = True
@@ -103,6 +116,8 @@ def process_logs(
     log_dir: str, 
     output_log_dir: str, 
     id_field_name: str, 
+    parse_function: str,
+    max_time_steps: int,
     model: AutoModelForCausalLM, 
     tokenizer: AutoTokenizer
 ) -> None:
@@ -116,6 +131,7 @@ def process_logs(
         log_dir (str): Directory containing the log files.
         output_log_dir (str): Directory to save the corrected log files.
         id_field_name (str): Field name used to extract the ID from the log.
+        parse_function (str): The name of the function to parse the model output to reason and action
         model (AutoModelForCausalLM): Pretrained language model for generating corrections.
         tokenizer (AutoTokenizer): Tokenizer associated with the model.
 
@@ -128,9 +144,9 @@ def process_logs(
             log = json.load(file)
 
         id, student_trajectory = log[id_field_name], log['trajectory']
-        task = log['task']
+        task = log['task'] if 'task' in log else None
         privileged_state = id_to_privileged_state[str(id)]
-        corrected_trajectory = correct_student_trajectory(student_trajectory, privileged_state, correction_oracle_template, model, tokenizer, task)
+        corrected_trajectory = correct_student_trajectory(student_trajectory, privileged_state, correction_oracle_template, model, tokenizer, task, parse_function, max_time_steps)
         corrected_log = log
         corrected_log['trajectory'] = corrected_trajectory
         output_filepath = os.path.join(output_log_dir, filename)
@@ -170,6 +186,8 @@ def main():
     privileged_state_file = config['privileged_state_file']
     prompt_file = config['prompt_file']
     id_field_name = config['id_field_name']
+    max_time_steps = config['max_time_steps']
+    parse_function = config['parse_function']
     correct_score_threshold = config['correct_score_threshold']
 
     os.makedirs(output_log_dir, exist_ok=True)
@@ -181,7 +199,8 @@ def main():
 
     df_summary = pd.read_csv(os.path.join(log_dir, 'summary.csv'))
     filtered_df = df_summary[df_summary['score'] <= correct_score_threshold] 
-    filtered_df = filtered_df[filtered_df['env_idx'] >=979] 
+    if ('start_idx' in config) and (config['start_idx'] is not None):
+        filtered_df = filtered_df[filtered_df['env_idx'] > config['start_idx']] 
     log_files = [f"{idx}.json" for idx in filtered_df['env_idx'].tolist()]
 
     model = AutoModelForCausalLM.from_pretrained(
@@ -195,7 +214,7 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    process_logs(log_files, correction_oracle_template, id_to_privileged_state, log_dir, output_log_dir, id_field_name, model, tokenizer)
+    process_logs(log_files, correction_oracle_template, id_to_privileged_state, log_dir, output_log_dir, id_field_name, parse_function, max_time_steps, model, tokenizer)
 
 if __name__ == '__main__':
     main()

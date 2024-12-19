@@ -1,0 +1,13 @@
+verbose: 0
+debug: false
+logdir: data/eval/webshop
+exact_path: false
+eval_set: test
+start_env_idx: 300
+max_env_idxs: null
+max_actions: 30
+agents:
+  - type: hf
+    model_id: save/241121/webshop_sft_self_correct/iter2/checkpoint-2200
+    prompt_template_file: prompts/webshop/webshop_template.j2
+

@@ -6,46 +6,57 @@ start_env_idx: null
 max_env_idxs: null
 eval_set: eval_out_of_distribution
 agents:
-  - type: openai
-    model_id: gpt-4o
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
+  # - type: openai
+  #   model_id: gpt-4o
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
 
-  - type: openai
-    model_id: gpt-4o-mini
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
+  # - type: openai
+  #   model_id: gpt-4o-mini
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
 
-  - type: chat
-    model_type: gemini
-    model_id: gemini-1.5-flash
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
+  # - type: chat
+  #   model_type: gemini
+  #   model_id: gemini-1.5-flash
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
 
-  - type: chat
-    model_type: anthropic
-    model_id: claude-3-5-sonnet-20240620
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
+  # - type: chat
+  #   model_type: anthropic
+  #   model_id: claude-3-5-sonnet-20240620
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
 
-  - type: chat
-    model_type: anthropic
-    model_id: claude-3-haiku-20240307
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
+  # - type: chat
+  #   model_type: anthropic
+  #   model_id: claude-3-haiku-20240307
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
+
+  # - type: hf
+  #   model_id: meta-llama/Meta-Llama-3-8B-Instruct
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter0
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter1
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter2
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter3
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
+
+  # - type: hf
+  #   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-webshop-intercode-iter0
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
+
+  # - type: hf
+  #   model_id: save/241121/alfworld_webshop_intercode_sft/iter1/checkpoint-2000/
+  #   prompt_template_file: prompts/alfworld/alfworld_template.j2
 
   - type: hf
-    model_id: meta-llama/Meta-Llama-3-8B-Instruct
+    model_id: save/241128/alfworld_sft/iter0/checkpoint-600/
     prompt_template_file: prompts/alfworld/alfworld_template.j2
-
-  - type: hf
-    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter0
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
-
-  - type: hf
-    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter1
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
-
-  - type: hf
-    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter2
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
-
-  - type: hf
-    model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter3
-    prompt_template_file: prompts/alfworld/alfworld_template.j2
-

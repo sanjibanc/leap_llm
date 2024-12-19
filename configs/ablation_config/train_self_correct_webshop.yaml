@@ -1,0 +1,42 @@
+correct_student_trajectory:
+  log_dir: data/ablation_self_correct/webshop/corrections/iter{iter}/rollout 
+  output_log_dir: data/ablation_self_correct/webshop/corrections/iter{iter}/correction 
+  privileged_state_file: data/webshop/privileged_state.json
+  prompt_file: prompts/webshop_self_correct_ablation/webshop_with_privileged_info_template.j2
+  id_field_name: env_idx
+  correct_score_threshold: 0
+  parse_function: parse_reason_and_action_webshop
+  max_time_steps: 10
+  start_idx: 3242
+  model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-self-correct-webshop-iter{iter}
+create_training_data:
+  sft:
+    prompt_template_file: prompts/webshop/webshop_template.j2
+    logs_dir: data/ablation_self_correct/webshop/corrections/iter{prev_iter}/correction
+    data_dir: data/ablation_self_correct/webshop/sft/iter{iter}
+    train_split: 0.85
+    input_fields:
+      observation: original_observation
+      candidate_actions: candidate_actions
+      reason: original_reason
+      action: original_action
+    output_fields:
+      reason: corrected_reason
+      action: corrected_action
+rollout_student_trajectory:
+  verbose: false
+  debug: false
+  logdir: data/ablation_self_correct/webshop/corrections/iter{iter}/rollout
+  exact_path: true
+  start_env_idx: null
+  max_env_idxs: null
+  eval_set: train
+  max_actions: 15
+  agents:
+    - type: hf
+      model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-self-correct-webshop-iter{iter}
+      prompt_template_file: prompts/webshop/webshop_template.j2
+upload_models_to_hf:
+  model_id_path: save/241121/webshop_sft_self_correct/iter2/checkpoint-1701
+  new_model_name: Meta-Llama-3-8B-Instruct-sft-self-correct-webshop-iter2
+  organization_name: leap-llm

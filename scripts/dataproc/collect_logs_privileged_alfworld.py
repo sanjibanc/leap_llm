@@ -27,7 +27,6 @@ def parse_and_load_config():
     parser.add_argument("--alfworld_config", type=str, default="configs/env_config/alfworld_config.yaml", help="Path to the Alfred base config file")
     parser.add_argument("--eval_config", type=str, help="Path to the evaluation config file")
     parser.add_argument("--training_config", type=str, help="Path to the training config file")
-    parser.add_argument("--iter", type=int, help="Iteration number")
     args = parser.parse_args()
 
     # Update sys.argv for compatibility with generic.load_config
@@ -36,13 +35,12 @@ def parse_and_load_config():
     if args.eval_config:
         with open(args.eval_config, "r") as f:
             config = yaml.safe_load(f)
-    elif args.training_config and args.iter is not None:
+    elif args.training_config:
         with open(args.training_config, "r") as f:
             training_config = yaml.safe_load(f)
-        config = training_config["rollout_student_trajectory"]
-        config = substitute_placeholders(config, "{iter}", str(args.iter))
+        config = training_config["collect_privileged_sft_demonstrations"]
     else:
-        parser.error("You must provide either --eval_config or both --training_config and --iter.")
+        parser.error("You must provide either --eval_config or --training_config.")
     
     return config
 
@@ -103,6 +101,10 @@ def main():
     with open(os.path.join(dstdir, "config.yaml"), "w") as f:
         yaml.dump(config, f)
 
+    privileged_state_file = config['privileged_state_file']
+    with open(privileged_state_file, "r") as file:
+        id_to_privileged_state = json.load(file)
+
     df_summary = pd.DataFrame()
 
     for agent_config in config["agents"]:
@@ -131,12 +133,15 @@ def main():
             trajectory = []
             agent.reset()
 
+            privileged_state = id_to_privileged_state[str(gamefile)]
+
             for _ in tqdm(range(max_actions), desc=f"Actions for env_idx: {env_idx + 1}"):
                 try:
                     reason, action = agent.predict_reason_action(
                         task=task,
                         observation=obs,
                         candidate_actions=info["admissible_commands"][0],
+                        privileged_state=privileged_state
                     )
                 except Exception as e:
                     print(f"Error occurred: {e}")

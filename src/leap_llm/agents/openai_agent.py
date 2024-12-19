@@ -37,7 +37,8 @@ class OpenAIAgent(Agent):
                               task: str, 
                               observation: Any, 
                               candidate_actions: List[str], 
-                              reward: Optional[str] = "") -> Tuple[str, str]:
+                              reward: Optional[str] = "",
+                              privileged_state: Any = None) -> Tuple[str, str]:
         """
         Predict reason and action given task, observation and candidate_actions. 
 
@@ -56,6 +57,7 @@ class OpenAIAgent(Agent):
             'mode': 'input',
             'task': task,
             'reward': reward,
+            'privileged_state': privileged_state,
             'observation_action_history': observation_action_history,
             'observation': observation,
             'candidate_actions': candidate_actions

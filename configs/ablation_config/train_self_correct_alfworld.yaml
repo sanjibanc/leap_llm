@@ -5,6 +5,7 @@ correct_student_trajectory:
   prompt_file: prompts/alfworld_self_correct_ablation/alfworld_with_privileged_info_template.j2
   id_field_name: gamefile
   correct_score_threshold: 0
+  parse_function: parse_reason_and_action_alfworld
   model_id: leap-llm/Meta-Llama-3-8B-Instruct-sft-alfworld-iter{iter}
 create_training_data:
   sft:
